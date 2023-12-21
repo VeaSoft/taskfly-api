@@ -1,0 +1,23 @@
+name: Dev CI/CD and Notification workflow
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-to-production:
+    name: Deploy to Dev enviroment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh commands using key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/taskfly-api
+            sudo bash deploy.sh
+
+            exit
