@@ -16,7 +16,4 @@ describe('ProjectService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should be defined', () => {
-    expect(service.)
-  })
 });

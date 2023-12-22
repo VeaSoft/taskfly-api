@@ -8,7 +8,10 @@ import { ProjectModule } from './project/project.module';
 import { TaskModule } from './task/task.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}), MongooseModule.forRoot(process.env.MONGODB_URI) , AuthModule, ProjectModule, TaskModule],
+  imports: [ConfigModule.forRoot({isGlobal: true}),
+     MongooseModule.forRoot(process.env.MONGODB_URI) ,
+      AuthModule, ProjectModule, 
+      TaskModule],
   controllers: [AppController],
   providers: [AppService],
 })
