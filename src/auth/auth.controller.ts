@@ -25,6 +25,15 @@ export class AuthController {
         const {email, firstName, lastName} = req.user;
 
         let userRecord = await this.authService.createUserIfNotExist(email, firstName, lastName);
-        
+
+        let accessToken = await this.authService.getJwtForUser(userRecord._id.toString());
+
+        return {
+            userRecord,
+            accessToken
+        }
+
     }
+
+    
 }
