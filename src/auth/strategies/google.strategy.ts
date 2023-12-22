@@ -32,6 +32,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       // ... other user data
     };
 
-    done(null, user);
+    console.log(`Google Profile, ${JSON.stringify(user)}`);
+
+    return user;
   }
 }
