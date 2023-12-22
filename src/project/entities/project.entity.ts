@@ -1,22 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type ProjectEntityDocument = HydratedDocument<ProjectEntity>;
 
 @Schema({ timestamps: true })
 export class ProjectEntity {
 
-  @Prop()
-  projectName: string;
+    
+    @Prop()
+    projectName: string;
 
-  @Prop()
-  projectDescription: string;
+    @Prop()
+    projectDescription: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
+    @Prop({ type: Types.ObjectId, ref: 'UserEntity' })
+    userId: Types.ObjectId;
 
-  @Prop({ default: Date.now })
-  updatedAt: Date;
+    @Prop({ default: Date.now })
+    createdAt: Date;
+
+    @Prop({ default: Date.now })
+    updatedAt: Date;
 }
 
 export const ProjectEntitySchema = SchemaFactory.createForClass(ProjectEntity);
