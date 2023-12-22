@@ -13,7 +13,14 @@ export class AuthService {
     }
 
     async createUserIfNotExist(email: string, firstName: string, lastName: string) {
-        this.userEntityRepository.findOne()
+        let userWithEmail = this.userEntityRepository.findOneAndUpdate({
+            email: { $regex: new RegExp(email, 'i') }
+        }, {
+            $set: { firstName, lastName }
+        },
+            { upsert: true, new: true });
+
+        return userWithEmail;
     }
 
 }
