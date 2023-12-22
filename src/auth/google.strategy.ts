@@ -21,10 +21,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     // user is validated, generate access token also here and register user if user doesn't exist yet.
+    const firstName = profile.name?.givenName || '';
+    const lastName = profile.name?.familyName || '';
 
     const user = {
       email: profile.emails[0].value,
       name: profile.displayName,
+      firstName,
+      lastName,
       // ... other user data
     };
 

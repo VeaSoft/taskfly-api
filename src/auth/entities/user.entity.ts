@@ -21,4 +21,4 @@ export class UserEntity {
   updatedAt: Date;
 }
 
-export const UserSchema = SchemaFactory.createForClass(UserEntity);
+export const UserEntitySchema = SchemaFactory.createForClass(UserEntity);
