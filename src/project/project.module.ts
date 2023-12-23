@@ -11,6 +11,7 @@ import { AuthModule } from 'src/auth/auth.module';
   providers: [ProjectService],
   imports: [MongooseModule.forFeature([
     { name: ProjectEntity.name, schema: ProjectEntitySchema },
-  ]), AuthModule]
+  ]), AuthModule],
+  exports: [ProjectService]
 })
 export class ProjectModule {}

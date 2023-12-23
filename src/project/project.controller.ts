@@ -12,22 +12,22 @@ export class ProjectController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async getProjectsBelongingToUser(@Req() req: Request) {
-    const userId = req.user.userId; // Assuming userId is available in the user object from JWT
-    return this.projectService.getProjectsBelongingToUser(userId);
+    const userId = req.user._id; // Assuming userId is available in the user object from JWT
+    return {data: await this.projectService.getProjectsBelongingToUser(userId), message: `successfully retrieved projects`};
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get(':projectName')
-  async getProjectByProjectName(@Param('projectName') projectName: string) {
-    return this.projectService.getProjectByProjectName(projectName);
+  @Get(':projectId')
+  async getProjectByProjectName(@Param('projectId') projectId: string) {
+    return {data: await this.projectService.getProjectByProjectId(projectId), message: `successfully retrieved project`};
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async createProject(@Body() createProjectDto: CreateProjectDto, @Req() req: Request) {
-    const userId = req.user.userId; // Assuming userId is available in the user object from JWT
+    const userId = req.user._id; // Assuming userId is available in the user object from JWT
     
     const { projectName, projectDescription } = createProjectDto;
-    return this.projectService.createProject(userId, projectName, projectDescription);
+    return {data: await this.projectService.createProject(userId, projectName, projectDescription), message: 'successfully created project'};
   }
 }

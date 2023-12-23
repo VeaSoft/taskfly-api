@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Get, Delete, Put, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Delete, Put, UseGuards, Req, Query, BadRequestException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { TaskService } from './task.service';
@@ -7,20 +7,25 @@ import { CreateTaskDto } from './dtos/create-task.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
 
 @Controller('tasks')
+@UseGuards(AuthGuard('jwt'))
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) { }
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  async createTask(@Body() createTaskDto: CreateTaskDto, @Req() req: Request): Promise<TaskEntity> {
-    const userId = req.user.userId; // Assuming userId is available in the user object from JWT
-    return this.taskService.createTask(createTaskDto.taskTitle, createTaskDto.taskDescription, createTaskDto.taskDueDate, createTaskDto.projectId, userId);
+  async createTask(@Body() createTaskDto: CreateTaskDto, @Req() req: Request) {
+    const userId = req.user._id; // Assuming userId is available in the user object from JWT
+    const createdTask = await this.taskService.createTask(createTaskDto.taskTitle, createTaskDto.taskDescription, new Date(createTaskDto.taskDueDate), createTaskDto.projectId, userId);
+
+    return { data: createdTask, message: `succesfully created task` }
   }
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
-  async updateTask(@Param('id') taskId: string, @Body() updateTaskDto: UpdateTaskDto): Promise<TaskEntity> {
-    return this.taskService.updateTask(taskId, updateTaskDto.taskTitle, updateTaskDto.taskDescription, updateTaskDto.taskDueDate);
+  async updateTask(@Param('id') taskId: string, @Body() updateTaskDto: UpdateTaskDto) {
+    const updatedTask = await this.taskService.updateTask(taskId, updateTaskDto.taskTitle, updateTaskDto.taskDescription, updateTaskDto.taskDueDate);
+
+    return { data: updatedTask, message: `successfully updated task` }
   }
 
   @Delete(':id')
@@ -30,19 +35,26 @@ export class TaskController {
   }
 
   @Get(':id')
-  async getTask(@Param('id') taskId: string): Promise<TaskEntity> {
-    return this.taskService.getTask(taskId);
+  async getTask(@Param('id') taskId: string) {
+    return { data: await this.taskService.getTask(taskId), message: `successfully retrieved task` };
   }
 
-  @Get('project/:projectId')
-  async getTasksByProject(@Param('projectId') projectId: string): Promise<TaskEntity[]> {
-    return this.taskService.getTasksByProject(projectId);
+  @Get()
+  async getTasksByProject(@Query('projectId') projectId: string) {
+
+    if (projectId) {
+      return { data: await this.taskService.getTasksByProject(projectId), message: `successfully retrieved tasks within a project` };
+    } else {
+      throw new BadRequestException(`Please include projectId in your query string`)
+    }
+
+
   }
 
   @Get('count/user')
   @UseGuards(AuthGuard('jwt'))
   async getTasksCountForUser(@Req() req: Request): Promise<number> {
-    const userId = req.user.userId; // Assuming userId is available in the user object from JWT
+    const userId = req.user._id; // Assuming userId is available in the user object from JWT
     return this.taskService.getTasksCountForUser(userId);
   }
 }
