@@ -43,6 +43,12 @@ export class ProjectService {
             projectDescription
         });
     }
+
+    async getProjectCountForUser(userId: string): Promise<number> {
+        // Count the number of projects for the given userId
+        const count = await this.projectEntityRepository.countDocuments({ userId });
+        return count;
+    }
     
 
 }

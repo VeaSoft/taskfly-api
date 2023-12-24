@@ -30,4 +30,12 @@ export class ProjectController {
     const { projectName, projectDescription } = createProjectDto;
     return {data: await this.projectService.createProject(userId, projectName, projectDescription), message: 'successfully created project'};
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('count/user')
+  async getProjectCountForUser(@Req() req: Request) {
+    const userId = req.user._id; // Assuming userId is available in the user object from JWT
+    const count = await this.projectService.getProjectCountForUser(userId);
+    return { count, message: 'Successfully retrieved project count for user' };
+  }
 }
