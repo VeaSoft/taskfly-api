@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsDate } from 'class-validator';
+import { IsOptional, IsString, IsDate, IsDateString } from 'class-validator';
 
 export class UpdateTaskDto {
   @IsOptional()
@@ -10,6 +10,6 @@ export class UpdateTaskDto {
   taskDescription: string;
 
   @IsOptional()
-  @IsDate()
-  taskDueDate: Date;
+  @IsDateString()
+  taskDueDate: string;
 }

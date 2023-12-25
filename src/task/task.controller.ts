@@ -23,7 +23,7 @@ export class TaskController {
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   async updateTask(@Param('id') taskId: string, @Body() updateTaskDto: UpdateTaskDto) {
-    const updatedTask = await this.taskService.updateTask(taskId, updateTaskDto.taskTitle, updateTaskDto.taskDescription, updateTaskDto.taskDueDate);
+    const updatedTask = await this.taskService.updateTask(taskId, updateTaskDto.taskTitle, updateTaskDto.taskDescription, new Date(updateTaskDto.taskDueDate));
 
     return { data: updatedTask, message: `successfully updated task` }
   }
