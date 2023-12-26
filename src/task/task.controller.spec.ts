@@ -7,13 +7,15 @@ import { TaskEntity } from './entities/task.entity';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
+import { ProjectService } from '../project/project.service';
+
 
 describe('TaskController', () => {
   let taskController: TaskController;
   let taskService: TaskService;
 
   let userObjectId =  new Types.ObjectId();
-  let projectObjectId = new Types.ObjectId();
+  let projectObjectId = new Types.ObjectId("6586a6394e7b0eac6c049cc1");
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,6 +29,12 @@ describe('TaskController', () => {
           deleteOne: jest.fn(),
           find: jest.fn(),
           countDocuments: jest.fn(),
+        },
+      },
+      {
+        provide: ProjectService,
+        useValue: {
+          getProjectByProjectId: jest.fn(),
         },
       },],
     }).compile();
@@ -44,13 +52,14 @@ describe('TaskController', () => {
       const createTaskDto: CreateTaskDto = {
         taskTitle: 'Sample Task',
         taskDescription: 'Sample Description',
-        taskDueDate: new Date(),
+        taskDueDate: (new Date()).toISOString(),
         projectId: projectObjectId.toHexString(),
       };
 
       const result: TaskEntity = {
         _id: new Types.ObjectId(),
         ...createTaskDto,
+        taskDueDate: new Date(createTaskDto.taskDueDate),
         projectId: projectObjectId,
         userId: new Types.ObjectId(),
       };
@@ -58,14 +67,14 @@ describe('TaskController', () => {
       jest.spyOn(taskService, 'createTask').mockResolvedValue(result);
 
       const task = await taskController.createTask(createTaskDto, { user: { userId: userObjectId.toHexString() } } as any);
-      expect(task).toEqual(result);
+      expect(task.data).toEqual(result);
     });
 
     it('should handle conflict if task title already exists', async () => {
       const createTaskDto: CreateTaskDto = {
         taskTitle: 'Sample Task',
         taskDescription: 'Sample Description',
-        taskDueDate: new Date(),
+        taskDueDate: (new Date()).toISOString(),
         projectId: projectObjectId.toHexString(),
       };
 
@@ -82,20 +91,21 @@ describe('TaskController', () => {
       const updateTaskDto: UpdateTaskDto = {
         taskTitle: 'Updated Task Title',
         taskDescription: 'Updated Description',
-        taskDueDate: new Date(),
+        taskDueDate: (new Date()).toISOString(),
       };
 
       const result: TaskEntity = {
         _id: new Types.ObjectId(),
         projectId: projectObjectId,
         ...updateTaskDto,
+        taskDueDate: new Date(updateTaskDto.taskDueDate),
         userId: new Types.ObjectId(),
       };
 
       jest.spyOn(taskService, 'updateTask').mockResolvedValue(result);
 
       const task = await taskController.updateTask('1', updateTaskDto);
-      expect(task).toEqual(result);
+      expect(task.data).toEqual(result);
     });
 
     it('should handle not found exception if task does not exist', async () => {
@@ -132,7 +142,7 @@ describe('TaskController', () => {
       };
       jest.spyOn(taskService, 'getTask').mockResolvedValue(taskEntity);
       const task = await taskController.getTask('1');
-      expect(task).toEqual(taskEntity);
+      expect(task.data).toEqual(taskEntity);
     });
 
     it('should handle not found exception if task does not exist', async () => {
@@ -164,7 +174,7 @@ describe('TaskController', () => {
       ];
       jest.spyOn(taskService, 'getTasksByProject').mockResolvedValue(tasks);
       const retrievedTasks = await taskController.getTasksByProject('project123');
-      expect(retrievedTasks).toEqual(tasks);
+      expect(retrievedTasks.data).toEqual(tasks);
     });
   });
 
@@ -173,7 +183,7 @@ describe('TaskController', () => {
       const count = 5;
       jest.spyOn(taskService, 'getTasksCountForUser').mockResolvedValue(count);
       const taskCount = await taskController.getTasksCountForUser({ user: { userId: userObjectId.toHexString() } } as any);
-      expect(taskCount).toBe(count);
+      expect(taskCount.count).toBe(count);
     });
   });
 

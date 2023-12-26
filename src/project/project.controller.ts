@@ -18,7 +18,7 @@ export class ProjectController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get(':projectId')
-  async getProjectByProjectName(@Param('projectId') projectId: string) {
+  async getProjectByProjectId(@Param('projectId') projectId: string) {
     return {data: await this.projectService.getProjectByProjectId(projectId), message: `successfully retrieved project`};
   }
 

@@ -15,7 +15,6 @@ export class AuthService {
     }
 
     async createUserIfNotExist(email: string, firstName: string, lastName: string): Promise<UserEntityDocument | null> {
-        console.log(`user in service here:  ${JSON.stringify({email, firstName, lastName})}`);
 
         const userWithEmail = await this.userEntityRepository.findOneAndUpdate(
             { email: { $regex: new RegExp(email, 'i') } },

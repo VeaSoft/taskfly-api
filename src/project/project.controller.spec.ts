@@ -5,6 +5,8 @@ import { CreateProjectDto } from './dtos/create-project.dto';
 import { Request } from 'express';
 import { getModelToken } from '@nestjs/mongoose';
 import { ProjectEntity } from './entities/project.entity';
+import { Types } from 'mongoose';
+import { NotFoundException } from '@nestjs/common';
 
 describe('ProjectController', () => {
   let controller: ProjectController;
@@ -35,7 +37,7 @@ describe('ProjectController', () => {
     it('should return projects belonging to user', async () => {
       const userId = 'user123';
       const projects = []; // Mock the projects array
-      jest.spyOn(projectService, 'getProjectsBelongingToUser').mockResolvedValue(projects);
+      jest.spyOn(projectService, 'getProjectsBelongingToUser').mockResolvedValue(projects as any);
 
       const req = {
         user: { userId },
@@ -43,19 +45,9 @@ describe('ProjectController', () => {
 
       const result = await controller.getProjectsBelongingToUser(req);
 
-      expect(result).toEqual(projects);
-    });
-  });
-
-  describe('getProjectByProjectName', () => {
-    it('should return project by project name', async () => {
-      const projectName = 'project123';
-      const project = {}; // Mock the project object
-      jest.spyOn(projectService, 'getProjectByProjectName').mockResolvedValue(project as any);
-
-      const result = await controller.getProjectByProjectName(projectName);
-
-      expect(result).toEqual(project);
+      // console.log(`Results ${JSON.stringify(result)}`);
+      // console.log(`Received ${JSON.stringify(projects)}`)
+      expect(result.data).toEqual(projects);
     });
   });
 
@@ -75,7 +67,25 @@ describe('ProjectController', () => {
 
       const result = await controller.createProject(createProjectDto, req);
 
-      expect(result).toEqual(project);
+      expect(result.data).toEqual(project);
+    });
+  });
+
+  describe('getProjectByProjectId', () => {
+    it('should return the project if found', async () => {
+      const projectId =  new Types.ObjectId();
+      const mockProject = {
+        _id: projectId,
+        projectName: 'Test Project',
+        projectDescription: 'Test Description',
+      };
+      jest.spyOn(projectService, 'getProjectByProjectId').mockResolvedValueOnce(mockProject as any);
+
+      const result = await controller.getProjectByProjectId(projectId.toHexString());
+      expect(result).toEqual({
+        data: mockProject,
+        message: 'successfully retrieved project',
+      });
     });
   });
 });

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskEntity, TaskEntityDocument } from './entities/task.entity';
 import { Model } from 'mongoose';
-import { ProjectService } from 'src/project/project.service';
+import { ProjectService } from '../project/project.service';
 
 @Injectable()
 export class TaskService {
@@ -11,11 +11,11 @@ export class TaskService {
 
     // Create a new task
     async createTask(taskTitle: string, taskDescription: string, taskDueDate: Date, projectId: string, userId: string): Promise<TaskEntity> {
-        
-        const projectExists = await this.projectService.getProjectByProjectId(projectId);
-        if(!projectExists){
-            throw new NotFoundException(`Project specified does not exist`);
-        }
+    
+        // const projectExists = await this.projectService.getProjectByProjectId(projectId);
+        // if(!projectExists){
+        //     throw new NotFoundException(`Project specified does not exist`);
+        // }
 
         // Trim and check if task with the same title already exists (case-insensitive)
         const trimmedTaskTitle = taskTitle.trim();

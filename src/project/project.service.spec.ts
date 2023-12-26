@@ -45,19 +45,32 @@ describe('ProjectService', () => {
     });
   });
 
-  describe('getProjectByProjectName', () => {
-    it('should return a project by project name', async () => {
-      const projectName = 'Project1';
-      const expectedProject = { userId: new Types.ObjectId().toHexString(), projectName, projectDescription: 'Description1' };
+  describe('getProjectsByProjectId', () => {
+    it('should return a project by its ID', async () => {
+      const mockProject = {
+        _id: new Types.ObjectId(),
+        projectName: 'Test Project',
+        projectDescription: 'Test Description',
+      };
 
-      jest.spyOn(model, 'findOne').mockResolvedValueOnce(expectedProject);
+      model.findOne = jest.fn().mockResolvedValue(mockProject);
 
-      const result = await service.getProjectByProjectName(projectName);
+      const result = await service.getProjectByProjectId('someId');
 
-      expect(result).toEqual(expectedProject);
-      expect(model.findOne).toHaveBeenCalledWith({ projectName: { $regex: new RegExp(projectName.trim(), 'i') } });
+      expect(result).toEqual(mockProject);
+      expect(model.findOne).toHaveBeenCalledWith({ _id: 'someId' });
     });
-  });
+
+    it('should return null if project is not found', async () => {
+      model.findOne = jest.fn().mockResolvedValue(null);
+
+      const result = await service.getProjectByProjectId('someNonExistentId');
+
+      expect(result).toBeNull();
+      expect(model.findOne).toHaveBeenCalledWith({ _id: 'someNonExistentId' });
+    });
+  })
+
 
   describe('createProject', () => {
     it('should create a new project', async () => {

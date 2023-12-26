@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsDate, IsUUID, IsDateString, Validate } from 'class-validator';
-import { IsValidObjectId } from 'src/validator-extensions/is-object-id.validator';
+import { IsValidObjectId } from '../../validator-extensions/is-object-id.validator';
 
 export class CreateTaskDto {
   @IsNotEmpty()

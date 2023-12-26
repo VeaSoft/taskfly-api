@@ -4,10 +4,12 @@ import { getModelToken } from '@nestjs/mongoose';
 import { TaskEntity, TaskEntityDocument } from './entities/task.entity';
 import { Model, Types } from 'mongoose';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ProjectService } from '../project/project.service';
 
 describe('TaskService', () => {
   let service: TaskService;
   let mockTaskModel: Model<TaskEntityDocument>;
+  let mockProjectService: ProjectService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,11 +26,18 @@ describe('TaskService', () => {
             countDocuments: jest.fn(),
           },
         },
+        {
+          provide: ProjectService,
+          useValue: {
+            getProjectByProjectId: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<TaskService>(TaskService);
     mockTaskModel = module.get<Model<TaskEntityDocument>>(getModelToken(TaskEntity.name));
+    mockProjectService = module.get<ProjectService>(ProjectService);
   });
 
   it('should be defined', () => {
@@ -41,18 +50,19 @@ describe('TaskService', () => {
         taskTitle: 'Task Title',
         taskDescription: 'Task Description',
         taskDueDate: new Date(),
-        projectId: new Types.ObjectId(),
+        projectId: new Types.ObjectId("6586a6394e7b0eac6c049cc1"),
         userId: new Types.ObjectId(),
       };
       jest.spyOn(mockTaskModel, 'create').mockResolvedValueOnce(mockTask as any);
 
       const result = await service.createTask(mockTask.taskTitle, mockTask.taskDescription, mockTask.taskDueDate, mockTask.projectId.toHexString(), mockTask.userId.toHexString());
       expect(result).toEqual(mockTask);
+
     });
 
     it('should throw a ConflictException if task with the same title exists', async () => {
       jest.spyOn(mockTaskModel, 'findOne').mockResolvedValue({ taskTitle: 'Task Title' } as any);
-      await expect(service.createTask('Task Title', 'Description', new Date(), 'projectId', 'userId')).rejects.toThrow(ConflictException);
+      await expect(service.createTask('Task Title', 'Description', new Date(), "6586a6394e7b0eac6c049cc1", 'userId')).rejects.toThrow(ConflictException);
     });
 
   });
@@ -65,9 +75,9 @@ describe('TaskService', () => {
         taskTitle: 'Updated Task Title',
         taskDescription: 'Updated Task Description',
         taskDueDate: new Date(),
-        projectId: 'projectId',
+        projectId: new Types.ObjectId("6586a6394e7b0eac6c049cc1"),
         userId: 'userId',
-        save: jest.fn().mockResolvedValue({_id: id, taskTitle: 'Updated Task Title', taskDescription: 'Updated Task Description' }),
+        save: jest.fn().mockResolvedValue({ _id: id, taskTitle: 'Updated Task Title', taskDescription: 'Updated Task Description' }),
       } as any;
 
       jest.spyOn(mockTaskModel, 'findById').mockResolvedValue(mockTask);
@@ -99,7 +109,7 @@ describe('TaskService', () => {
         taskTitle: 'Task Title',
         taskDescription: 'Task Description',
         taskDueDate: new Date(),
-        projectId: new Types.ObjectId(),
+        projectId: new Types.ObjectId("6586a6394e7b0eac6c049cc1"),
         userId: new Types.ObjectId(),
       };
       jest.spyOn(mockTaskModel, 'findById').mockResolvedValue(mockTask);
@@ -115,7 +125,7 @@ describe('TaskService', () => {
 
   describe('getTasksByProject', () => {
     it('should retrieve tasks by project ID', async () => {
-      const projectId = new Types.ObjectId();
+      const projectId = new Types.ObjectId("6586a6394e7b0eac6c049cc1");
       const mockTasks: TaskEntity[] = [
         {
           _id: new Types.ObjectId(),
